@@ -1,6 +1,6 @@
 # Baraag DL
 
-A simple Baraag media downloader.
+A simple Baraag media downloader, made to be a simple way of downloading all images/videos in posts made by accounts you follow.
 
 Inspired by [PixivUtil](https://github.com/Nandaka/PixivUtil2) and [FantiaDL](https://github.com/bitbybyte/fantiadl).
 
@@ -67,6 +67,8 @@ requests
 - Run Baraag_DL:
   ```py baraag_dl.py```
 
+- After done running, either close the terminal or deactivate the environment with: ```deactivate```
+
 # Usage
 ## Logging in and authentication
 ### First run
@@ -89,6 +91,10 @@ requests
 
 :warning: The Mastodon API is limited to 300 requests every 5 minutes. This means that Baraag DL will run considerably slower after some time as to prevent being cut off by the API.
 
-
+# To-Do
+- Implement search function.
+- Implement downloading from specific users.
+- Implement Pawoo compatibility.
+  
 
   
