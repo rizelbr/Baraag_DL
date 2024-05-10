@@ -42,7 +42,7 @@ requests
 
 ## Windows
 ### Recommended
-- Download the prepackaged binaries.
+- Download the [prepackaged binaries](https://github.com/rizelbr/Baraag_DL/releases).
 
 ### Alternative
 - Download and install Python if not already installed.
