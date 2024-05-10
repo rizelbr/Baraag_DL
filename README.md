@@ -87,7 +87,7 @@ requests
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
 - Files are saved as ```{Date posted}_{Post ID}_{Attachment_ID}.extension``` in a folder for each account, named in the format ```{Account name}_{Account ID}```. Keep in mind that ```Account name``` is not the same as ```Display name```, so an account's public name and Baraag registration name may differ.
-- Files already downloaded and saved to disk are skipped to both save time, bandwidth, and not bombard the API with requests.
+- Files already downloaded and saved to disk are skipped to save time, bandwidth, and not bombard the API with requests.
 
 :warning: The Mastodon API is limited to 300 requests every 5 minutes. This means that Baraag DL will run considerably slower after some time as to prevent being cut off by the API.
 
