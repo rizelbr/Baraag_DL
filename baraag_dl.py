@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.01 -  A simple Baraag media downloader
+Baraag DL v0.011 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.01"
+baraag_dl_version = "v0.011"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -232,76 +232,81 @@ def initialize():
     """
     print("Initializing client...")
     print()
-    if os.path.isfile("client_credentials") and os.path.isfile("user_credentials"):
-        client_credentials = "client_credentials"
-        user_credentials = "user_credentials"
-        print("Client and user credentials found. Attempting authentication...")
-        print()
-        try:
-            client = init_client(client_credentials, user_credentials)
-            client.me()
-            print(Fore.GREEN+"Authentication successful!"+Fore.RESET)
-            return client
-        
-        except MastodonUnauthorizedError as exc:
-            #logging.exception(str(exc))
-            print(Fore.RED+"Credentials invalid!"+Fore.RESET)
+    try:
+        if os.path.isfile("client_credentials") and os.path.isfile("user_credentials"):
+            client_credentials = "client_credentials"
+            user_credentials = "user_credentials"
+            print("Client and user credentials found. Attempting authentication...")
+            print()
+            try:
+                client = init_client(client_credentials, user_credentials)
+                client.me()
+                print(Fore.GREEN+"Authentication successful!"+Fore.RESET)
+                return client
+            
+            except MastodonUnauthorizedError as exc:
+                #logging.exception(str(exc))
+                print(Fore.RED+"Credentials invalid!"+Fore.RESET)
+                print()
+                print("Reinitializing...")
+                print()
+                client = cold_init()
+                return client
+            
+            except MastodonNetworkError as exc:
+                mastodon_network_error_handler(exc)
+                
+            except MastodonError as exc:
+                mastodon_error_handler(exc)
+            
+            except Exception as exc:
+                #logging.exception(str(exc))
+                print(Fore.RED+"Credentials invalid!"+Fore.RESET)
+                print()
+                print("Reinitializing...")
+                print()
+                client = cold_init()
+                return client
+                
+        elif os.path.isfile("client_credentials"):
+            client_credentials = "client_credentials"
+            print("Client credentials found. Attempting authentication...")
+            print()
+            client = init_client(client_credentials)
+            user, password = request_login()
+            
+            try:
+                user_login(client, user, password)
+                print()
+                print(Fore.GREEN+"Login successful!"+Fore.RESET)
+                return client
+            
+            except MastodonNetworkError as exc:
+                mastodon_network_error_handler(exc)
+                
+            except MastodonError as exc:
+                mastodon_error_handler(exc)
+                   
+            except Exception as exc:
+                #logging.exception(str(exc))
+                print(Fore.RED+"Unable to login with credentials provided!"+Fore.RESET)
+                print()
+                print("Attempting client reinitialization...")
+                print()
+                client = cold_init()
+                return client
+                
+        else:
+            print(Fore.RED+"Credentials not found!"+Fore.RESET)
             print()
             print("Reinitializing...")
             print()
             client = cold_init()
             return client
-        
-        except MastodonNetworkError as exc:
-            mastodon_network_error_handler(exc)
-            
-        except MastodonError as exc:
-            mastodon_error_handler(exc)
-        
-        except Exception as exc:
-            #logging.exception(str(exc))
-            print(Fore.RED+"Credentials invalid!"+Fore.RESET)
-            print()
-            print("Reinitializing...")
-            print()
-            client = cold_init()
-            return client
-            
-    elif os.path.isfile("client_credentials"):
-        client_credentials = "client_credentials"
-        print("Client credentials found. Attempting authentication...")
+    
+    except KeyboardInterrupt:
         print()
-        client = init_client(client_credentials)
-        user, password = request_login()
-        
-        try:
-            user_login(client, user, password)
-            print()
-            print(Fore.GREEN+"Login successful!"+Fore.RESET)
-            return client
-        
-        except MastodonNetworkError as exc:
-            mastodon_network_error_handler(exc)
-            
-        except MastodonError as exc:
-            mastodon_error_handler(exc)
-        
-        except Exception as exc:
-            #logging.exception(str(exc))
-            print(Fore.RED+"Unable to login with credentials provided!"+Fore.RESET)
-            print()
-            print("Attempting client reinitialization...")
-            print()
-            client = cold_init()
-            return client
-            
-    else:
-        print(Fore.RED+"Credentials not found!"+Fore.RESET)
-        print()
-        print("Reinitializing...")
-        print()
-        client = cold_init()
-        return client               
+        print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
 
 def get_following(user_id):
     """
@@ -342,17 +347,14 @@ def get_following(user_id):
         sys.exit()
     
     else:
-            
-        while len(req_response.links.keys()) > 1:
+          
+        while 'next' in req_response.links.keys():
             follow_list.extend(req_response.json())
             url = req_response.links["next"]["url"]
             req_response = requests.get(url)
             
-            if len(req_response.links.keys()) == 1:
-                follow_list.extend(req_response.json())
-                break
-            else:
-                continue
+        else:
+            follow_list.extend(req_response.json())         
         
         return follow_list
 
@@ -747,6 +749,5 @@ def main():
 
 if __name__ == "__main__": 
     main()
-
 
 #%% DEBUG
