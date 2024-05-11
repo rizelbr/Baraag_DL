@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.011 -  A simple Baraag media downloader
+Baraag DL v0.012 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.011"
+baraag_dl_version = "v0.012"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -307,7 +307,8 @@ def initialize():
     except KeyboardInterrupt:
         print()
         print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
-
+        sys.exit()
+        
 def get_following(user_id):
     """
     Returns a list of dictionaries containing all users a user with the
@@ -521,7 +522,10 @@ def get_attachment_data(timeline):
             
             for attachment in attachments:
                 attachment_id = str(attachment['id'])
-                attachment_url = attachment['url']
+                if "media_proxy" in attachment['url']:
+                    attachment_url = attachment['remote_url'].split('?')[0]
+                else:
+                    attachment_url = attachment['url']
                 
                 extension = "." + attachment_url.split(".")[-1]
                 
@@ -745,6 +749,7 @@ def main():
     except KeyboardInterrupt:
         print()
         print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+        sys.exit()
 
 
 if __name__ == "__main__": 
