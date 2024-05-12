@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.012 -  A simple Baraag media downloader
+Baraag DL v0.013 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.012"
+baraag_dl_version = "v0.013"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -529,6 +529,32 @@ def get_attachment_data(timeline):
                 
                 extension = "." + attachment_url.split(".")[-1]
                 
+                if "com" in extension or "/" in extension:
+                    print("Extension could not be inferred for attachment "+ \
+                          attachment_id+" from post "+post_id+".")
+                    print("Possible redirect url...")
+                    print()
+                    print("Temporarily fetching file to infer filetype...")
+                    
+                    try:
+                        problem_file = requests.get(attachment_url)
+                        file_header = problem_file.headers
+                        extension = "."+file_header['Content-Disposition'].split(".")[-1]
+                        print()
+                        print("Extension inferred from HTTP response: "+extension[1:])
+                        print()
+                    
+                    except Exception as exc:
+                        logging.exception(str(exc))
+                        print()
+                        print(Fore.RED+"Failed to infer file type!"+Fore.RESET)
+                        print()
+                        print("Skipping...")
+                        continue
+                
+                else:
+                    pass
+                
                 filename = "_".join([date, post_id, attachment_id])+extension
                 
                 attachment_dic[post_id]['media'][attachment_id] = {}
@@ -754,5 +780,6 @@ def main():
 
 if __name__ == "__main__": 
     main()
+
 
 #%% DEBUG
