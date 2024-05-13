@@ -32,13 +32,33 @@ requests
 
 - After done running, either close the terminal or deactivate the environment with: ```deactivate```
 
+#### Optional additional setup
+- For added convenience, I recommend either creating a shell script to execute ```baraag_dl.py``` using the Python interpreter from the environment you created above, or modifying ```baraag_dl.py``` to point to the environment's Python interpreter when executing.
+
+- For the former, if we suppose you created the ```baraag_dl``` environment in your home folder, create a file containing the following lines in the same folder as ```baraag_dl.py```:
+```
+#!/bin/bash
+
+~/baraag_dl/bin/python3 baraag_dl.py
+```
+
+- Save the file with a name of your choice (let's call it ```run.sh``` for this example), and grant it execution permissions with ```sudo chmod +x run.sh``` . Type in your computer's password when prompted.
+
+- From this point on, you should be able to execute Baraag DL by running ```run.sh``` , without the need to activate or deactivate environments.
+
+- For the latter, modify the first line in ```baraag_dl.py``` to ```#!~/baraag_dl/bin/python3```
+
+- From this point on, you should be able to execute ```baraag_dl.py``` directly, without the need for activating or deactivating an environment.
+
+- Please be aware that if you choose the latter, you **will** need to redo this modification whenever you update Baraag DL.
+
 ### Alternative 1
 
-- Skip the virtual environment and install the requirements to the base Python install using ```pip install```
+- Skip the virtual environment and install the requirements to the base Python install using ```pip install``` to install the required packages listed above.
 
 ### Alternative 2
 
-- Use Anaconda/miniconda/miniforge to create an environment, and run baraag_dl.py from within the environment.
+- Use Anaconda/miniconda/miniforge to create an environment, install the required packages, and run ```baraag_dl.py``` from within the environment.
 
 ## Windows
 ### Recommended
@@ -92,9 +112,11 @@ requests
 :warning: The Mastodon API is limited to 300 requests every 5 minutes. This means that Baraag DL will run considerably slower after some time as to prevent being cut off by the API.
 
 # To-Do
+- Implement dry run mode (debugging)
 - Implement search function.
 - Implement downloading from specific users.
 - Implement Pawoo compatibility.
+- Install script for MacOS/Linux (?)
   
 
   
