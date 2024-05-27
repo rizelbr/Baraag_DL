@@ -114,7 +114,7 @@ requests
 - Should the search be successful, it will present you with a list of the accounts matching the name you input.
 - You can then choose among the options of the list for the account from which all media will be downloaded.
 
-### Downloading and Filenames
+## Downloading and Filenames
 - Files are saved as ```{Date posted}_{Post ID}_{Attachment_ID}.extension``` in a folder for each account, named in the format ```{Account name}_{Account ID}```. Keep in mind that ```Account name``` is not the same as ```Display name```, so an account's public name and Baraag registration name may differ.
 - Files already downloaded and saved to disk are skipped to save time, bandwidth, and not bombard the API with requests.
 
