@@ -113,8 +113,6 @@ requests
 
 # To-Do
 - Implement dry run mode (debugging)
-- Implement search function.
-- Implement downloading from specific users.
 - Implement Pawoo compatibility.
 - Install script for MacOS/Linux (?)
   

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.013 -  A simple Baraag media downloader
+Baraag DL v0.014 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.013"
+baraag_dl_version = "v0.014"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -659,8 +659,10 @@ def process_following_user(client, follow_dic):
     
     follow_dic = a dictionary of followed account names and IDs in the format
                  {account_name (str): {'account':(str),'id':(int)}.
+                  
                   Obtained from the ['following'] key of the dictionary
-                  returned by get_owner_info().
+                  returned by get_owner_info(), or alternatively from
+                  search_user().
 
     Returns nothing, saves all media attachments to disk.
 
@@ -704,19 +706,40 @@ def process_following_user(client, follow_dic):
         
         print()
 
-#%% TO BE IMPLEMENTED (works, but useless right now)
-def search_user():
-    username = input("Please type in username to search: ")
-    
-    try:
-        results = client.account_search(username)
+def search_user(client):
+    """
+    Searches Baraag for an account, defined by the user.
+
+    Takes 1 arguments:
         
-    except MastodonNetworkError as exc:
-        mastodon_network_error_handler(exc)
-          
-    except MastodonError as exc:
-        mastodon_error_handler(exc)         
+    client = Mastodon client object, generated/initialized by initialize()
+             Defaults to client.
+             REQUIRED
+             
+             
+    Returns a dictionary with the info of the user from which media should be
+    downloaded, in the format {account_name (str): {'account':(str),'id':(int)}.         
+    """
+    results = []
+    while not results:
     
+        try:
+            username = input("Please type in username to search (Ctrl+C to exit): ")
+            results = client.account_search(username)
+            if not results:
+                print(Fore.RED+"User not found!"+Fore.RESET+" Please try again!")
+            
+        except MastodonNetworkError as exc:
+            mastodon_network_error_handler(exc)
+              
+        except MastodonError as exc:
+            mastodon_error_handler(exc)         
+        
+        except KeyboardInterrupt:
+            print()
+            print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+            sys.exit()
+
     if len(results) > 1:
         print(str(len(results))+" users found: \n")
         for number, item in enumerate(results):
@@ -725,17 +748,92 @@ def search_user():
                   +" ID: "+str(item['id'])+"\n")
               
         valid_choices = list(range(1, len(results) + 1))
-        selection = None
+        selection = ""
         
         while selection not in valid_choices:
-            selection = int(input("Please pick the user to be used from the list: "))
+            selection = ""
+            while not selection.isdigit():
+                selection = input("Please pick the user to be used from the list: ")
+            else:
+                selection = int(selection)                
             
         selection -=1
-        result_id = results[selection]['id']
-    else:
-        result_id = results[0]['id']
+        result_dic = {results[selection]['acct']:\
+                      {'account': results[selection]['acct'],\
+                       'id': results[selection]['id']}}
+        
+    else:   
+        result_dic = {results[0]['acct']:\
+                      {'account': results[0]['acct'],\
+                       'id': results[0]['id']}}
     
-    return result_id
+    return result_dic
+
+
+def download_following(client):
+    """
+    Routine loop that downloads media from all accounts the user follows.
+    Segregated from main() as of v0.014.
+    
+
+    Takes 1 arguments:
+        
+    client = Mastodon client object, generated/initialized by initialize()
+             Defaults to client.
+             REQUIRED
+             
+    Returns nothing, saves files to disk, exits program when done.
+
+    """
+    # Getting user information
+           
+    owner_info = get_owner_info(client)
+    
+    # Get following list
+    
+    follow_list = owner_info['following']
+    follow_number = len(follow_list)
+    
+    # Process followed accounts and start downloads
+    print()
+    print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
+    print()
+    process_following_user(client, follow_list)
+    print(Fore.GREEN+"All done!"+Fore.RESET)
+
+
+def select_menu():
+    """
+    Basic selection menu.
+    
+    It takes no arguments.
+    
+    It returns a selection number (int).
+    """
+    
+    print("\nChoose an option:\n")
+    print("1. Download media from all followed accounts")
+    print("2. Search for user to download media from")
+    print("3. Exit\n")
+    
+    valid_choices = [1,2,3]
+    selection = ""
+    
+    try:
+        while selection not in valid_choices:
+            selection = ""
+            while not selection.isdigit():
+                selection = input("Please choose an option: ")
+
+            else:
+                selection = int(selection)  
+        
+    except KeyboardInterrupt:
+        print()
+        print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+        sys.exit()
+        
+    return selection
 
 #%%
 def main():
@@ -752,25 +850,23 @@ def main():
         
         client = initialize()
         
-        # Getting user information
-               
-        owner_info = get_owner_info(client)
+        # Main menu
+        selection = select_menu()
         
-        # Get following list
-        
-        follow_list = owner_info['following']
-        follow_number = len(follow_list)
-        
-        # Process followed accounts and start downloads
-        print()
-        print(Fore.YELLOW+"Processing followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
-        print()
-        process_following_user(client, follow_list)
-    
-        # Exit
-        
-        print(Fore.GREEN+"All done!"+Fore.RESET)
-        sys.exit()
+        if selection == 1:
+            # Downloading all followed accounts
+            download_following(client)
+            
+        elif selection == 2:
+            # Downloading all media from a specific account
+            user_to_download = search_user(client)
+            print()
+            process_following_user(client, user_to_download)
+           
+        else:
+            print()
+            print(Fore.YELLOW+"Exiting..."+Fore.RESET)
+            sys.exit()
         
     except KeyboardInterrupt:
         print()
