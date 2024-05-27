@@ -1,8 +1,9 @@
 # Changelog
 
-## feature/search 2024/05/27
+## v0.014 2024/05/27
 
-- Feature (initial commit): Added option to search and choose which user to download media from.
+- Feature: Added option to search and choose which account to download media from. This should allow users to more quickly download/update their offline cache for a specific account when compared to letting the program complete its longer loop through all followed accounts.
+- Feature: Added a main menu with options for users. This means it requires a bit more interaction than before.
 
 ## v0.013 2024/05/12
 

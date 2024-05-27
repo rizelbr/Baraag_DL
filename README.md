@@ -102,10 +102,19 @@ requests
 - Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for username and password again.
  
 ## Execution
-- Baraag DL will then automatically:
+- You will then be shown a menu and asked how you'd like to proceed:
+### 1. Download from all followed accounts
+- Baraag DL will automatically:
     - Fetch all accounts you follow
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
+    
+### 2. Search for a specific user
+- Baraag DL will then prompt you for the name of the artist/account to search. 
+- Should the search be successful, it will present you with a list of the accounts matching the name you input.
+- You can then choose among the options of the list for the account from which all media will be downloaded.
+
+### Downloading and Filenames
 - Files are saved as ```{Date posted}_{Post ID}_{Attachment_ID}.extension``` in a folder for each account, named in the format ```{Account name}_{Account ID}```. Keep in mind that ```Account name``` is not the same as ```Display name```, so an account's public name and Baraag registration name may differ.
 - Files already downloaded and saved to disk are skipped to save time, bandwidth, and not bombard the API with requests.
 
@@ -115,6 +124,3 @@ requests
 - Implement dry run mode (debugging)
 - Implement Pawoo compatibility.
 - Install script for MacOS/Linux (?)
-  
-
-  
