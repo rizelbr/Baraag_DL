@@ -862,6 +862,7 @@ def main():
             user_to_download = search_user(client)
             print()
             process_following_user(client, user_to_download)
+            print(Fore.GREEN+"All done!"+Fore.RESET)
            
         else:
             print()
