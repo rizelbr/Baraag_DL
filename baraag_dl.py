@@ -60,7 +60,7 @@ def create_client():
 def init_client(client_credentials = "client_credentials", user_credentials = None):
     '''
     Initializes a local Mastodon client using Mastodon.py, and utilizes the 
-    credentials created by create_clinet() to interface with the Mastodon API. 
+    credentials created by create_client() to interface with the Mastodon API. 
     Utilizes the 'pace' rate limiter to prevent the API from rejecting
     requests.
 
@@ -347,8 +347,7 @@ def get_following(user_id):
         print("Exiting...")
         sys.exit()
     
-    else:
-          
+    else:       
         while 'next' in req_response.links.keys():
             follow_list.extend(req_response.json())
             url = req_response.links["next"]["url"]

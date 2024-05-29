@@ -42,7 +42,7 @@ requests
 ~/baraag_dl/bin/python3 baraag_dl.py
 ```
 
-- Save the file with a name of your choice (let's call it ```run.sh``` for this example), and grant it execution permissions with ```sudo chmod +x run.sh``` . Type in your computer's password when prompted.
+- Save the file with a name of your choice (let's call it ```run.sh``` for this example), and grant it execution permissions with ```chmod +x run.sh``` .
 
 - From this point on, you should be able to execute Baraag DL by running ```run.sh``` , without the need to activate or deactivate environments.
 
