@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.014"
+baraag_dl_version = "v0.0141"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
