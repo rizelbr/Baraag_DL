@@ -656,6 +656,8 @@ def process_following_user(client, settings, follow_dic):
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
              REQUIRED
+             
+    settings = dictionary of conversion settings, created by ffmpeg_validate()
     
     follow_dic = a dictionary of followed account names and IDs in the format
                  {account_name (str): {'account':(str),'id':(int)}.
@@ -775,17 +777,18 @@ def search_user(client):
     return result_dic
 
 
-def download_following(client):
+def download_following(client, settings):
     """
     Routine loop that downloads media from all accounts the user follows.
     Segregated from main() as of v0.014.
     
 
-    Takes 1 arguments:
+    Takes 2 arguments:
         
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
              REQUIRED
+    settings = dictionary of conversion settings, created by ffmpeg_validate()
              
     Returns nothing, saves files to disk, exits program when done.
 
@@ -803,7 +806,7 @@ def download_following(client):
     print()
     print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
     print()
-    process_following_user(client, follow_list)
+    process_following_user(client, settings, follow_list)
     print(Fore.GREEN+"All done!"+Fore.RESET)
 
 
@@ -966,7 +969,7 @@ def ffmpeg_validate(settings):
             settings["ffmpeg_path"] = ffmpeg_full_path
             
         else:
-            ffmpeg_path = "C:\\Windows\\System32\\"
+            ffmpeg_path = ""
             ffmpeg_exe = "ffmpeg.exe"
             ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
             settings["ffmpeg_path"] = ffmpeg_full_path
@@ -1096,7 +1099,7 @@ def main():
         
         if selection == 1:
             # Downloading all followed accounts
-            download_following(client)
+            download_following(client, settings)
             
         elif selection == 2:
             # Downloading all media from a specific account
