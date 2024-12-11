@@ -538,7 +538,7 @@ def get_attachment_data(timeline):
                     try:
                         problem_file = requests.get(attachment_url)
                         file_header = problem_file.headers
-                        extension = "."+file_header['Content-Disposition'].split(".")[-1]
+                        extension = "."+file_header['Content-Disposition'].split(".")[-1].strip('\"')
                         print()
                         print("Extension inferred from HTTP response: "+extension[1:])
                         print()
