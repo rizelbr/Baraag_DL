@@ -847,7 +847,7 @@ def write_ini():
     It takes no arguments and returns nothing.    
 
     """
-    ini_settings =  "use_ffmpeg = True\n"\
+    ini_settings =  "use_ffmpeg = False\n"\
                     "ffmpeg_path = System\n"\
                     "convert_gif = True\n"\
                     "convert_apng = True\n"
@@ -942,7 +942,6 @@ def ffmpeg_init():
         write_ini()
         settings = read_ini()
         return settings
-
 
 def ffmpeg_validate(settings):
     """
