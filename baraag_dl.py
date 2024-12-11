@@ -853,7 +853,8 @@ def write_ini():
     ini_settings =  "use_ffmpeg = False\n"\
                     "ffmpeg_path = System\n"\
                     "convert_gif = True\n"\
-                    "convert_apng = True\n"
+                    "convert_apng = True\n"\
+                    "file_size_limit = 50.0"
     
     with open("config.ini", "w") as ini_file:
         ini_file.writelines(ini_settings)
@@ -885,6 +886,14 @@ def read_ini():
         settings["convert_apng"] = True
     else:
         settings["convert_apng"] = False
+    
+    try:
+        settings["file_size_limit"] = float(settings["file_size_limit"])
+    except ValueError:
+        print(Fore.RED+"Invalid filesize limit value!"+Fore.RESET +
+              " Resetting to defaults...")
+        print()
+        settings["file_size_limit"] = 50.0
          
     return settings
 
@@ -894,7 +903,8 @@ def validate_ini(settings):
     
     Returns a boolean of the validity of the file.
     """
-    valid_options = ["use_ffmpeg", "ffmpeg_path", "convert_gif", "convert_apng"]
+    valid_options = ["use_ffmpeg", "ffmpeg_path", "convert_gif", "convert_apng",
+                     "file_size_limit"]
     
     if sorted(valid_options) == sorted(list(settings.keys())):
         return True
@@ -1026,45 +1036,51 @@ def video_convert(settings, file, folder):
     apng = settings["convert_apng"]
     gif = settings["convert_gif"]
     ffmpeg = settings["ffmpeg_path"]
+    size_limit = settings["file_size_limit"]
     
     filename = file['filename']
     filename_stem = filename.split(".")[0]
-   
-    if apng:
-        output = filename_stem + ".apng"
-        input_path = folder + filename
-        output_path = folder + output
-        if os.path.isfile(output_path):
-            print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
-        else:
-            print("Converting to APNG...")
-            arguments = [ffmpeg, "-i", input_path, output_path]
-            process = subprocess.run(arguments, stderr=subprocess.PIPE,
-                                 stdout=subprocess.PIPE, text=True,
-                                 check=True)
-            stdout = process.stdout
-            if process.returncode == 0:
-                print("Conversion to APNG successful")
+    input_path = folder + filename
+    
+    file_size = os.path.getsize(input_path)/1048576
+    
+    if file_size <= size_limit:
+        if apng:
+            output = filename_stem + ".apng"
+            input_path = folder + filename
+            output_path = folder + output
+            if os.path.isfile(output_path):
+                print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
             else:
-                print("Conversion to APNG failed...")
-    if gif:
-        output = filename_stem + ".gif"
-        input_path = folder + filename
-        output_path = folder + output
-        if os.path.isfile(output_path):
-            print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
-        else:
-            print("Converting to GIF...")
-            arguments = [ffmpeg, "-i", input_path, output_path]
-            process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                print("Converting to APNG...")
+                arguments = [ffmpeg, "-i", input_path, output_path]
+                process = subprocess.run(arguments, stderr=subprocess.PIPE,
                                      stdout=subprocess.PIPE, text=True,
                                      check=True)
-            stdout = process.stdout
-            if process.returncode == 0:
-                print("Conversion to GIF successful")
+                stdout = process.stdout
+                if process.returncode == 0:
+                    print("Conversion to APNG successful")
+                else:
+                    print("Conversion to APNG failed...")
+        if gif:
+            output = filename_stem + ".gif"
+            input_path = folder + filename
+            output_path = folder + output
+            if os.path.isfile(output_path):
+                print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
             else:
-                print("Conversion to GIF failed...")
-
+                print("Converting to GIF...")
+                arguments = [ffmpeg, "-i", input_path, output_path]
+                process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                                         stdout=subprocess.PIPE, text=True,
+                                         check=True)
+                stdout = process.stdout
+                if process.returncode == 0:
+                    print("Conversion to GIF successful")
+                else:
+                    print("Conversion to GIF failed...")
+    else:
+        print("File over the filesize limit. Skipping...")
 #%%
 def main():
     try:
@@ -1079,10 +1095,10 @@ def main():
         # Program settings initialization
         
         settings = ffmpeg_init()
-        
+
         # Initialize Ffmpeg
         settings = ffmpeg_validate(settings)
-
+    
         if settings["use_ffmpeg"]:
             print(Fore.GREEN+"Ffmpeg conversion enabled."+Fore.RESET)
             print()
