@@ -12,6 +12,7 @@ import sys
 import os
 import requests
 import logging
+import subprocess
 
 from datetime import datetime
 
@@ -26,7 +27,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.0141"
+baraag_dl_version = "v0.02"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -641,7 +642,7 @@ def sanitize(string):
 
     return sanitized_string 
 
-def process_following_user(client, follow_dic):
+def process_following_user(client, settings, follow_dic):
     """
     Goes over every account followed by an user, collects all posts with 
     media attachments, and downloads them to disk in folders according to
@@ -699,7 +700,12 @@ def process_following_user(client, follow_dic):
             post = media[post]['media']
             for file in post.keys():
                 file = post[file]
+                extension = file["filename"].split(".")[-1]
                 download_file(file, folder_path)
+                if extension == "mp4" and settings["use_ffmpeg"]:
+                    video_convert(settings, file, folder_path)
+                else:
+                    pass
         
         current_number +=1
         
@@ -834,6 +840,229 @@ def select_menu():
         
     return selection
 
+def write_ini():
+    """
+    Writes a basic ini file for ffmpeg settings.
+
+    It takes no arguments and returns nothing.    
+
+    """
+    ini_settings =  "use_ffmpeg = True\n"\
+                    "ffmpeg_path = System\n"\
+                    "convert_gif = True\n"\
+                    "convert_apng = True\n"
+    
+    with open("config.ini", "w") as ini_file:
+        ini_file.writelines(ini_settings)
+
+def read_ini():
+    """
+    Reads a config.ini present in the base folder of the script.
+
+    It takes no arguments and returns nothing.
+
+    """
+    with open("config.ini", "r") as ini_file:
+        settings = ini_file.readlines()
+    settings = [x.replace(" ", "").strip().split("=")for x in settings]
+    
+    settings = {x[0]:x[1] for x in settings}
+    
+    if settings["use_ffmpeg"] == "True":
+        settings["use_ffmpeg"] = True
+    else:
+        settings["use_ffmpeg"] = False
+        
+    if settings["convert_gif"] == "True":
+        settings["convert_gif"] = True
+    else:
+        settings["convert_gif"] = False
+        
+    if settings["convert_apng"] == "True":
+        settings["convert_apng"] = True
+    else:
+        settings["convert_apng"] = False
+         
+    return settings
+
+def validate_ini(settings):
+    """
+    Runs a quick validation of the settings in the config.ini file.
+    
+    Returns a boolean of the validity of the file.
+    """
+    valid_options = ["use_ffmpeg", "ffmpeg_path", "convert_gif", "convert_apng"]
+    
+    if sorted(valid_options) == sorted(list(settings.keys())):
+        return True
+    else:
+        return False
+
+def ffmpeg_init():
+    """
+    Runs an initialization loop for Ffmpeg to enable it in case the user so
+    requires and/or it is present in the system.
+    
+    In short, it:
+        1- reads the config.ini file if present
+        2- creates the file if not present/and or file is invalid
+    
+    Returns a dictionary with the data from the config.ini file
+    """
+    if os.path.isfile("config.ini"):
+        print(Fore.GREEN+"Ffmpeg settings file found!"+Fore.RESET)
+        print()
+        print("Reading settings file...")
+        print()
+        try:
+            settings = read_ini()
+            if validate_ini(settings):
+                return settings
+            else:
+                print(Fore.RED+"Settings invalid! Reinitializing settings file"\
+                      "..."+Fore.RESET)
+                print()
+                write_ini()
+                settings = read_ini()
+                return settings
+        except:
+            print(Fore.RED+"Settings invalid! Reinitializing settings file..."
+                  +Fore.RESET)
+            print()
+            print("Creating settings file...")
+            print()
+            write_ini()
+            settings = read_ini()
+            return settings
+    else:
+        print(Fore.RED+"Settings file not found!"+Fore.RESET)
+        print()
+        print("Creating settings file...")
+        print()
+        write_ini()
+        settings = read_ini()
+        return settings
+
+
+def ffmpeg_validate(settings):
+    """
+    Validates the settings of the config.ini file based on OS and settings
+    in the file.
+    
+    Takes the settings from ffmpeg_init() as a required parameter.
+    
+    Returns the settings dictionary as is if settings are valid, or with
+    Ffmpeg turned off (settings["use_ffmpeg"] = False) if settings are invalid
+    or Ffmpeg is not present.
+
+    """
+    current_os = os.name
+    settings = settings
+    
+    if settings["ffmpeg_path"] == "System":
+        if current_os == "posix":
+            ffmpeg_path = "/usr/bin/"
+            ffmpeg_exe = "ffmpeg"
+            ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
+            settings["ffmpeg_path"] = ffmpeg_full_path
+            
+        else:
+            ffmpeg_path = "C:\\Windows\\System32\\"
+            ffmpeg_exe = "ffmpeg.exe"
+            ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
+            settings["ffmpeg_path"] = ffmpeg_full_path
+            
+    else:
+        pass
+    
+    try: 
+        if os.path.isfile(settings["ffmpeg_path"]):
+            print(Fore.GREEN+"Ffmpeg executable found!"+Fore.RESET)
+            print()
+            return settings
+            
+        else:
+            print(Fore.RED+"Ffmpeg executable not found!"+Fore.RESET)
+            print("Disabling Ffmpeg conversion...")
+            print()
+            settings["use_ffmpeg"] = False
+            return settings
+    except:
+        print(Fore.RED+"Ffmpeg executable not found!"+Fore.RESET)
+        print("Disabling Ffmpeg conversion...")
+        print()
+        settings["use_ffmpeg"] = False
+        return settings
+
+def video_convert(settings, file, folder):
+    """
+    Converts a given MP4 file to APNG and GIF depending on the contents of the
+    settings dictionary (derived from config.ini)
+    
+    Usually run after download_file() to do on-the-fly conversion as needed.
+    
+    Takes 3 arguments:
+        settings = settings dictionary returned by ffmpeg_validate(); REQUIRED
+        file = an attachment in dictionary form {attachment_id: { 'id': (int), 
+                                                                  'url': (str), 
+                                                                  'filename':(str)
+                                                                  }} ,
+                existing in the larger dictionary generated by 
+                get_attachment_data().
+                REQUIRED
+        folder = the folder name where the attachment will be downloaded, usually 
+                 defined by process_following_user() at runtime.
+                 REQUIRED.
+    
+    Returns nothing, generates GIF and APNG files in the same folder as the MP4
+    file.
+    
+    This is admiteddly a very rudimentary implementation, might revamp in future
+    releases.
+
+    """
+    apng = settings["convert_apng"]
+    gif = settings["convert_gif"]
+    ffmpeg = settings["ffmpeg_path"]
+    
+    filename = file['filename']
+    filename_stem = filename.split(".")[0]
+   
+    if apng:
+        output = filename_stem + ".apng"
+        input_path = folder + filename
+        output_path = folder + output
+        if os.path.isfile(output_path):
+            print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
+        else:
+            print("Converting to APNG...")
+            arguments = [ffmpeg, "-i", input_path, output_path]
+            process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, text=True,
+                                 check=True)
+            stdout = process.stdout
+            if process.returncode == 0:
+                print("Conversion to APNG successful")
+            else:
+                print("Conversion to APNG failed...")
+    if gif:
+        output = filename_stem + ".gif"
+        input_path = folder + filename
+        output_path = folder + output
+        if os.path.isfile(output_path):
+            print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
+        else:
+            print("Converting to GIF...")
+            arguments = [ffmpeg, "-i", input_path, output_path]
+            process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                                     stdout=subprocess.PIPE, text=True,
+                                     check=True)
+            stdout = process.stdout
+            if process.returncode == 0:
+                print("Conversion to GIF successful")
+            else:
+                print("Conversion to GIF failed...")
+
 #%%
 def main():
     try:
@@ -845,6 +1074,20 @@ def main():
         print("------------------------------------------------------")
         print()
         
+        # Program settings initialization
+        
+        settings = ffmpeg_init()
+        
+        # Initialize Ffmpeg
+        settings = ffmpeg_validate(settings)
+
+        if settings["use_ffmpeg"]:
+            print(Fore.GREEN+"Ffmpeg conversion enabled."+Fore.RESET)
+            print()
+        else:
+            print(Fore.YELLOW+"Ffmpeg conversion disabled"+Fore.RESET)
+            print()
+
         # Client initialization
         
         client = initialize()
@@ -860,7 +1103,7 @@ def main():
             # Downloading all media from a specific account
             user_to_download = search_user(client)
             print()
-            process_following_user(client, user_to_download)
+            process_following_user(client, settings, user_to_download)
             print(Fore.GREEN+"All done!"+Fore.RESET)
            
         else:
