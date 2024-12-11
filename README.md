@@ -129,7 +129,7 @@ file_size_limit = 50.0
 	1. Converting these massive files takes a **very** long time
 	2. The resulting filesize of the APNG is **absurd** (16GB APNG from a 67MB MP4, for example)
 	3. The resulting files are unplayable/unusable due to their file size and serve no practical purpose other than take up disk space
-- If you absolutely **need** to convert larger files, do increase the limit to a value you are comfortable with; However, in that case I would suggest you raise it temporarily to convert the files from a specific creator you want (**hint:** use the search function) and then lower it to a more sane value.
+- If you absolutely **need** to convert larger files, do increase the limit to a value you are comfortable with; However, in that case I would suggest you raise it temporarily to convert the files from a specific creator you want (**hint:** use the search function) and then lower it to a saner value.
 # Usage
 ## Logging in and authentication
 ### First run
