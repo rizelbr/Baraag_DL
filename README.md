@@ -157,6 +157,7 @@ file_size_limit = 50.0
 - Baraag DL will then prompt you for the name of the artist/account to search. 
 - Should the search be successful, it will present you with a list of the accounts matching the name you input.
 - You can then choose among the options of the list for the account from which all media will be downloaded.
+- If ffmpeg is present and enabled, all MP4 media will be converted to GIF/APNG, as configured in the `config.ini` file.
 
 ## Downloading and Filenames
 - Files are saved as ```{Date posted}_{Post ID}_{Attachment_ID}.extension``` in a folder for each account, named in the format ```{Account name}_{Account ID}```. Keep in mind that ```Account name``` is not the same as ```Display name```, so an account's public name and Baraag registration name may differ.
