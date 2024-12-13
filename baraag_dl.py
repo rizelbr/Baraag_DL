@@ -979,7 +979,7 @@ def ffmpeg_validate(settings):
         
         elif current_os == "darwin":
             ffmpeg_path = ""
-            ffmpeg_exe = "ffmpeg"
+            ffmpeg_exe = "./ffmpeg"
             ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
             settings["ffmpeg_path"] = ffmpeg_full_path 
         
