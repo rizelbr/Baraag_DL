@@ -1055,15 +1055,17 @@ def video_convert(settings, file, folder):
             else:
                 print("Converting to APNG...")
                 arguments = [ffmpeg, "-i", input_path, output_path]
-                process = subprocess.run(arguments, stderr=subprocess.PIPE,
-                                     stdout=subprocess.PIPE, text=True,
-                                     check=True)
-                stdout = process.stdout
-                if process.returncode == 0:
+                try:
+                    process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                                         stdout=subprocess.PIPE, text=True,
+                                         check=True)
+                    stdout = process.stdout
                     print("Conversion to APNG successful")
-                else:
-                    print("Conversion to APNG failed...")
+                except subprocess.CalledProcessError as exc:
+                    logging.exception(str(exc))
+                    print(Fore.RED+"Conversion to APNG failed. Please check error logs."+Fore.RESET)
                     print("Continue anyway...")
+
         if gif:
             output = filename_stem + ".gif"
             input_path = folder + filename
@@ -1076,15 +1078,17 @@ def video_convert(settings, file, folder):
                              '[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];'\
                                  '[b][p]paletteuse=dither=bayer:bayer_scale=5:'\
                                      'diff_mode=rectangle', output_path]
-                process = subprocess.run(arguments, stderr=subprocess.PIPE,
-                                         stdout=subprocess.PIPE, text=True,
-                                         check=True)
-                stdout = process.stdout
-                if process.returncode == 0:
+                try:
+                    process = subprocess.run(arguments, stderr=subprocess.PIPE,
+                                             stdout=subprocess.PIPE, text=True,
+                                             check=True)
+                    stdout = process.stdout
                     print("Conversion to GIF successful")
-                else:
-                    print("Conversion to GIF failed...")
+                except subprocess.CalledProcessError as exc:
+                    logging.exception(str(exc))
+                    print(Fore.RED+"Conversion to GIF failed. Please check error logs."+Fore.RESET)
                     print("Continue anyway...")
+
     else:
         print("File over the filesize limit. Skipping...")
 #%%
