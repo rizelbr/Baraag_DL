@@ -63,6 +63,7 @@ requests
 ## Windows
 ### Recommended
 - Download the [prepackaged binaries](https://github.com/rizelbr/Baraag_DL/releases).
+- Run Baraag DL by double-clicking the executable file.
 
 ### Alternative
 - Download and install Python if not already installed.
@@ -91,7 +92,7 @@ requests
 
 # FFMpeg Video conversion
 - As of version 0.02, Baraag DL is capable of converting animations/videos posted on Baraag to APNG and GIF. **This REQUIRES [ffmpeg](https://www.ffmpeg.org) to be provided by the user (or their OS, as applicable)**
-- In order to achieve this, a config file for ffmpeg settings is necessary. If this is your first time running Baraag DL, it will create it for you on the first time you run it. The file will be recreated if the file is ever deleted or corrupted.
+- In order to achieve this, a config file for ffmpeg settings is necessary. If this is your first time running Baraag DL, it will create it for you (`config.ini`) on the first time you run it. The file will be recreated if it is ever deleted or corrupted.
 - The default file consists of the following lines:
 ```
 use_ffmpeg = False
@@ -110,8 +111,12 @@ file_size_limit = 50.0
 ## ffmpeg_path
 ```ffmpeg_path = System```
 - Where in the system the ffmpeg executable is located.
-- The default is `System`, and on POSIX systems (Linux/OSX) this tells Baraag DL to use `/usr/bin/ffmpeg`; On Windows, this tells Baraag DL to use `ffmpeg.exe` **in the same folder as Baraag DL**. If using Windows, I recommend you place `ffmpeg.exe` in the same folder as `baraag_dl.py`/`baraag_dl.exe` to make things simple.
-- Alternatively, replace `System` with the **full path** to the ffmpeg executable (i.e. `/home/Downloads/ffmpeg`;`C:\Downloads\ffmpeg.exe`)
+- The default is `System`, and on Linux systems this tells Baraag DL to use `/usr/bin/ffmpeg`; On Windows, this tells Baraag DL to use `ffmpeg.exe` **in the same folder as Baraag DL**, and on Mac OSX it tells Baraag DL to use `ffmpeg` **in the same folder as Baraag DL**. 
+- If using Windows, I recommend you place `ffmpeg.exe` in the same folder as `baraag_dl.py`/`baraag_dl.exe` to make things simple.
+- If using a Mac, I recommend you place `ffmpeg` in the same folder as `baraag_dl.py`. 
+- Alternatively, replace `System` with the **full path** to the ffmpeg executable (i.e. `/home/Downloads/ffmpeg` ; `/Users/$USER/Downloads/ffmpeg` ; `C:\Downloads\ffmpeg.exe`)
+### Note for Mac users
+- If the OS does not allow you to run ffmpeg due to "untrusted developer", I recommend you download ffmpeg through [Homebrew](https://brew.sh/) and then use the path provided by Homebrew as the ffmpeg path. If unsure, type `which ffmpeg` into the Terminal app and it will tell you which path to use.
 ## convert_gif
 ```convert_gif = True```
 - Whether or not Baraag DL should create GIFs from MP4 files.
@@ -127,20 +132,20 @@ file_size_limit = 50.0
 - This means any MP4 file over 50MB will be skipped and not converted to GIF or APNG.
 - This was done because some video files on Baraag are **massive**, and:
 	1. Converting these massive files takes a **very** long time
-	2. The resulting filesize of the APNG is **absurd** (16GB APNG from a 67MB MP4, for example)
-	3. The resulting files are unplayable/unusable due to their file size and serve no practical purpose other than take up disk space
+	2. The resulting filesize of the converted files is **absurd** (16GB APNG from a 67MB MP4, for example).
+	3. The resulting files are unplayable/unusable due to their file size and serve no practical purpose other than take up disk space.
 - If you absolutely **need** to convert larger files, do increase the limit to a value you are comfortable with; However, in that case I would suggest you raise it temporarily to convert the files from a specific creator you want (**hint:** use the search function) and then lower it to a saner value.
 # Usage
 ## Logging in and authentication
 ### First run
-- Baraag DL will generate a config.ini file with the default recommended values.
+- Baraag DL will generate a `config.ini` file with the default recommended values.
 - Baraag DL will register a client with the Mastodon API used by Baraag.
 - This will generate a persistent authentication token, ```client_credentials``` in the same folder baraag_dl.py is run from.
 - You will be prompted for a username (e-mail) and password to log into your Baraag account.
-- Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder baraag_dl.py is run from.
+- Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder Baraag DL is run from.
 
 ### Subsequent runs
-- Settings from the config.ini file will be read.
+- Settings from the `config.ini` file will be read.
 - If ```client_credentials``` and ```user_credentials``` are still valid, authentication will happen without user input.
 - Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for username and password again.
  
@@ -151,7 +156,7 @@ file_size_limit = 50.0
     - Fetch all accounts you follow
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
-    - Convert all MP4 files it comes across to GIF/APNG (if enabled by the user in the config.ini file generated)
+    - Convert all MP4 files it comes across to GIF/APNG (if enabled by the user in the `config.ini` file generated)
     
 ### 2. Search for a specific user
 - Baraag DL will then prompt you for the name of the artist/account to search. 
