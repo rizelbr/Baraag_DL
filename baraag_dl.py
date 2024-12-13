@@ -1139,6 +1139,12 @@ def main():
             print(Fore.YELLOW+"Exiting..."+Fore.RESET)
             sys.exit()
         
+        if os.path.isfile(logfile):
+            print(Fore.YELLOW+"There were errors during the execution "\
+                  "of Baraag DL. Please check logs for details."+Fore.RESET)
+        else:
+            pass
+        
     except KeyboardInterrupt:
         print()
         print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
