@@ -1072,7 +1072,10 @@ def video_convert(settings, file, folder):
                 print("File "+output+" already exists in folder "+folder[:-1]+". Skipping...")
             else:
                 print("Converting to GIF...")
-                arguments = [ffmpeg, "-i", input_path, output_path]
+                arguments = [ffmpeg, "-i", input_path, "-filter_complex",
+                             '[0:v]split[a][b];[a]palettegen=stats_mode=diff[p];'\
+                                 '[b][p]paletteuse=dither=bayer:bayer_scale=5:'\
+                                     'diff_mode=rectangle', output_path]
                 process = subprocess.run(arguments, stderr=subprocess.PIPE,
                                          stdout=subprocess.PIPE, text=True,
                                          check=True)
