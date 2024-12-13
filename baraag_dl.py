@@ -967,16 +967,22 @@ def ffmpeg_validate(settings):
     ffmpeg turned off (settings["use_ffmpeg"] = False) if settings are invalid
     or ffmpeg is not present.
     """
-    current_os = os.name
+    current_os = sys.platform
     settings = settings
     
     if settings["ffmpeg_path"] == "System":
-        if current_os == "posix":
+        if current_os == "linux":
             ffmpeg_path = "/usr/bin/"
             ffmpeg_exe = "ffmpeg"
             ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
             settings["ffmpeg_path"] = ffmpeg_full_path
-            
+        
+        elif current_os == "darwin":
+            ffmpeg_path = ""
+            ffmpeg_exe = "ffmpeg"
+            ffmpeg_full_path = ffmpeg_path + ffmpeg_exe
+            settings["ffmpeg_path"] = ffmpeg_full_path 
+        
         else:
             ffmpeg_path = ""
             ffmpeg_exe = "ffmpeg.exe"
