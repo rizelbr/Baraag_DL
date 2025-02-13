@@ -108,8 +108,11 @@ def request_login():
     Returns a pair of strings: user, password
     
     """
-    user = input("Login (e-mail): ")
-    password = getpass("Password (will not be echoed): ")
+    user = input("Login (e-mail, leave blank to skip login): ")
+    if user:
+        password = getpass("Password (will not be echoed): ")
+    else:
+        password = None
     
     return user, password
 
@@ -208,6 +211,7 @@ def cold_init():
 
     try:
         user_login(client, user, password)
+        
         print(Fore.GREEN+"Login successful!"+Fore.RESET)
         return client
     except Exception as exc:
@@ -277,11 +281,16 @@ def initialize():
             user, password = request_login()
             
             try:
-                user_login(client, user, password)
-                print()
-                print(Fore.GREEN+"Login successful!"+Fore.RESET)
-                return client
-            
+                if user:
+                    user_login(client, user, password)
+                    print()
+                    print(Fore.GREEN+"Login successful!"+Fore.RESET)
+                    return client
+                else:
+                    print()
+                    print(Fore.YELLOW+"Proceeding as unregistered user..."+Fore.RESET)
+                    return client
+                    
             except MastodonNetworkError as exc:
                 mastodon_network_error_handler(exc)
                 
@@ -809,7 +818,7 @@ def download_following(client, settings):
     process_following_user(client, settings, follow_list)
     print(Fore.GREEN+"All done!"+Fore.RESET)
 
-def select_menu():
+def select_menu(logged_in):
     """
     Basic selection menu.
     
@@ -819,28 +828,52 @@ def select_menu():
     """
     
     print("\nChoose an option:\n")
-    print("1. Download media from all followed accounts")
-    print("2. Search for user to download media from")
-    print("3. Exit\n")
-    
-    valid_choices = [1,2,3]
-    selection = ""
-    
-    try:
-        while selection not in valid_choices:
-            selection = ""
-            while not selection.isdigit():
-                selection = input("Please choose an option: ")
-
-            else:
-                selection = int(selection)  
+    if logged_in:
+        print("1. Download media from all followed accounts")
+        print("2. Search for user to download media from")
+        print("3. Exit\n")
         
-    except KeyboardInterrupt:
-        print()
-        print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
-        sys.exit()
+        valid_choices = [1,2,3]
+        selection = ""
         
-    return selection
+        try:
+            while selection not in valid_choices:
+                selection = ""
+                while not selection.isdigit():
+                    selection = input("Please choose an option: ")
+    
+                else:
+                    selection = int(selection)  
+            
+        except KeyboardInterrupt:
+            print()
+            print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+            sys.exit()
+            
+        return selection
+    
+    else:
+        print("1. Search for user to download media from")
+        print("2. Exit\n")
+        
+        valid_choices = [1,2]
+        selection = ""
+        
+        try:
+            while selection not in valid_choices:
+                selection = ""
+                while not selection.isdigit():
+                    selection = input("Please choose an option: ")
+    
+                else:
+                    selection = int(selection)  
+            
+        except KeyboardInterrupt:
+            print()
+            print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+            sys.exit()
+            
+        return selection
 
 def write_ini():
     """
@@ -1097,6 +1130,80 @@ def video_convert(settings, file, folder):
 
     else:
         print("File over the filesize limit. Skipping...")
+
+#%%
+def search_user_unlogged():
+    """
+    Searches Baraag for an account, defined by the user.
+
+    Takes no arguments.
+    
+    This search function foregoes Mastodon.py and queries the API directly.
+    This is made to allow unauthenticated users to search and download.             
+             
+    Returns a dictionary with the info of the user from which media should be
+    downloaded, in the format {account_name (str): {'account':(str),'id':(int)}.         
+    """
+    results = []
+    while not results:
+    
+        try:
+            username = input("Please type in username to search (Ctrl+C to exit): ")
+            base_url = "https://baraag.net/api/v2/search"
+            search_params = {'q': username, 'type':'accounts'}
+            
+            results = requests.get(base_url, params=search_params)
+            results = results.json()['accounts']
+            if not results:
+                print(Fore.RED+"User not found!"+Fore.RESET+" Please try again!")
+            
+        except MastodonNetworkError as exc:
+            mastodon_network_error_handler(exc)
+              
+        except MastodonError as exc:
+            mastodon_error_handler(exc)         
+        
+        except KeyboardInterrupt:
+            print()
+            print(Fore.YELLOW+"Interrupted by user. Exiting..."+Fore.RESET)
+            sys.exit()
+
+    if len(results) > 1:
+        print(str(len(results))+" users found: \n")
+        for number, item in enumerate(results):
+            print(str(number+1) +" "+item['display_name']\
+                  +" URL: "+item['url']
+                  +" ID: "+str(item['id'])+"\n")
+              
+        valid_choices = list(range(1, len(results) + 1))
+        selection = ""
+        
+        while selection not in valid_choices:
+            selection = ""
+            while not selection.isdigit():
+                selection = input("Please pick the user to be used from the list: ")
+            else:
+                selection = int(selection)                
+            
+        selection -=1
+        result_dic = {results[selection]['acct']:\
+                      {'account': results[selection]['acct'],\
+                       'id': results[selection]['id']}}
+        
+    else:   
+        result_dic = {results[0]['acct']:\
+                      {'account': results[0]['acct'],\
+                       'id': results[0]['id']}}
+    
+    return result_dic
+#%%
+def validate_login(client):
+    try:
+        client.me()
+        return True
+    except:
+        return False
+        
 #%%
 def main():
     try:
@@ -1126,8 +1233,14 @@ def main():
         
         client = initialize()
         
+        # Check if user is logged in
+        
+        logged_in = validate_login(client)
+                
         # Main menu
-        selection = select_menu()
+        selection = select_menu(logged_in)
+        if not logged_in:
+            selection +=1
         
         if selection == 1:
             # Downloading all followed accounts
@@ -1135,7 +1248,10 @@ def main():
             
         elif selection == 2:
             # Downloading all media from a specific account
-            user_to_download = search_user(client)
+            if logged_in:
+                user_to_download = search_user(client)
+            else:
+                user_to_download = search_user_unlogged()
             print()
             process_following_user(client, settings, user_to_download)
             print(Fore.GREEN+"All done!"+Fore.RESET)
