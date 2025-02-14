@@ -208,12 +208,17 @@ def cold_init():
         
     except MastodonError as exc:
         mastodon_error_handler(exc)     
-
+    
     try:
-        user_login(client, user, password)
-        
-        print(Fore.GREEN+"Login successful!"+Fore.RESET)
-        return client
+        if user:
+            user_login(client, user, password)
+            print()
+            print(Fore.GREEN+"Login successful!"+Fore.RESET)
+            return client
+        else:
+            print()
+            print(Fore.YELLOW+"Proceeding as unregistered user..."+Fore.RESET)
+            return client
     except Exception as exc:
         logging.exception(str(exc))
         print()
