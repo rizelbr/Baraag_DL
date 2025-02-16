@@ -172,8 +172,6 @@ def login_loop(client, user, password):
             print()
             print(Fore.YELLOW+"Proceeding as unregistered user..."+Fore.RESET)
             return client
-    except MastodonUnauthorizedError as exc:
-        logging.exception(str(exc))
            
     except MastodonIllegalArgumentError as exc:
         #logging.exception(str(exc))
