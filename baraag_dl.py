@@ -172,16 +172,29 @@ def login_loop(client, user, password):
             print()
             print(Fore.YELLOW+"Proceeding as unregistered user..."+Fore.RESET)
             return client
-    except MastodonIllegalArgumentError:
-        print()
-        print(Fore.RED+"Unable to login with details provided!"+Fore.RESET)
-        print()
-        print(Fore.YELLOW+"Please try again. Ctrl + C to exit."+Fore.RESET)
-        print()
-        user, password = request_login()
-        client = login_loop(client, user , password)
-        return client
-
+    except MastodonUnauthorizedError as exc:
+        logging.exception(str(exc))
+           
+    except MastodonIllegalArgumentError as exc:
+        logging.exception(str(exc))
+        if "'invalid_client'" in str(exc):
+            print()
+            print(Fore.RED+"Credentials invalid!"+Fore.RESET)
+            print()
+            print("Reinitializing...")
+            print()
+            client = cold_init()
+            return client 
+        else:
+            print()
+            print(Fore.RED+"Unable to login with details provided!"+Fore.RESET)
+            print()
+            print(Fore.YELLOW+"Please try again. Ctrl + C to exit."+Fore.RESET)
+            print()
+            user, password = request_login()
+            client = login_loop(client, user , password)
+            return client
+    
 def mastodon_error_handler(exc):
     """
     Handles generic MastodonError type errors.
