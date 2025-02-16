@@ -142,6 +142,7 @@ file_size_limit = 50.0
 - Baraag DL will register a client with the Mastodon API used by Baraag.
 - This will generate a persistent authentication token, ```client_credentials``` in the same folder baraag_dl.py is run from.
 - You will be prompted for a username (e-mail) and password to log into your Baraag account.
+- Alternatively, leave the login field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
 - Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder Baraag DL is run from.
 
 ### Subsequent runs
@@ -151,12 +152,13 @@ file_size_limit = 50.0
  
 ## Execution
 - You will then be shown a menu and asked how you'd like to proceed:
-### 1. Download from all followed accounts
+### 1. Download from all followed accounts (if logged in)
 - Baraag DL will automatically:
     - Fetch all accounts you follow
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
     - Convert all MP4 files it comes across to GIF/APNG (if enabled by the user in the `config.ini` file generated)
+- This option is disabled for unregistered users.
     
 ### 2. Search for a specific user
 - Baraag DL will then prompt you for the name of the artist/account to search. 
