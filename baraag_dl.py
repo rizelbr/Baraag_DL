@@ -1163,7 +1163,6 @@ def video_convert(settings, file, folder):
     else:
         print("File over the filesize limit. Skipping...")
 
-#%%
 def search_user_unlogged():
     """
     Searches Baraag for an account, defined by the user.
@@ -1228,7 +1227,7 @@ def search_user_unlogged():
                        'id': results[0]['id']}}
     
     return result_dic
-#%%
+
 def validate_login(client):
     """
     Simple boolean function to check if the user is loggend in or not.
