@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.021 -  A simple Baraag media downloader
+Baraag DL v0.022 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -29,7 +29,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.021"
+baraag_dl_version = "v0.022"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -176,7 +176,7 @@ def login_loop(client, user, password):
         logging.exception(str(exc))
            
     except MastodonIllegalArgumentError as exc:
-        logging.exception(str(exc))
+        #logging.exception(str(exc))
         if "'invalid_client'" in str(exc):
             print()
             print(Fore.RED+"Credentials invalid!"+Fore.RESET)
@@ -1230,6 +1230,13 @@ def search_user_unlogged():
     return result_dic
 #%%
 def validate_login(client):
+    """
+    Simple boolean function to check if the user is loggend in or not.
+    
+    Takes the initial client created by initialize() as an argument.
+    
+    Returns a boolean representing whether a valid login was provided or not.
+    """
     try:
         client.me()
         return True
