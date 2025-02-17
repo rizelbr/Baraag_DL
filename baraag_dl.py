@@ -1228,7 +1228,7 @@ def search_user_unlogged():
 
 def validate_login(client):
     """
-    Simple boolean function to check if the user is loggend in or not.
+    Simple boolean function to check if the user is logged in or not.
     
     Takes the initial client created by initialize() as an argument.
     
