@@ -190,7 +190,7 @@ def login_loop(client, user, password):
             print(Fore.YELLOW+"Please try again. Ctrl + C to exit."+Fore.RESET)
             print()
             user, password = request_login()
-            client = login_loop(client, user , password)
+            client = login_loop(client, user, password)
             return client
     
 def mastodon_error_handler(exc):
@@ -1311,3 +1311,19 @@ def main():
 if __name__ == "__main__": 
     main()
 #%% DEBUG
+client = init_client()
+
+#%%
+problem_user = 110918075156416248
+problem_timeline = get_timeline(client,problem_user)
+
+#%%
+
+problem_file = "https://baraag.net/media_proxy/110918148400408769/original"
+
+
+#%%
+
+problem_file = requests.get(problem_file)
+file_header = problem_file.headers
+extension = "."+file_header['Content-Disposition'].split(".")[-1].strip('\"')
