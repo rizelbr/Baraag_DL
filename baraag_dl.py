@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.022 -  A simple Baraag media downloader
+Baraag DL v0.023 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -29,7 +29,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.022"
+baraag_dl_version = "v0.023"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
