@@ -949,17 +949,17 @@ def read_ini():
     
     settings = {x[0]:x[1] for x in settings}
     
-    if settings["use_ffmpeg"] == "True":
+    if settings["use_ffmpeg"].lower() == "true":
         settings["use_ffmpeg"] = True
     else:
         settings["use_ffmpeg"] = False
         
-    if settings["convert_gif"] == "True":
+    if settings["convert_gif"].lower() == "true":
         settings["convert_gif"] = True
     else:
         settings["convert_gif"] = False
         
-    if settings["convert_apng"] == "True":
+    if settings["convert_apng"].lower() == "true":
         settings["convert_apng"] = True
     else:
         settings["convert_apng"] = False
