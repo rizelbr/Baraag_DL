@@ -694,6 +694,14 @@ def sanitize(string):
     return sanitized_string 
 
 def write_checkpoint(key=None):
+    """
+    Writes a checkpoint file to disk.
+    If given a key (STR, usually from process_following_user()),
+    appends it to the checkpoint file.
+    If given nothing, writes a blank checkpoint file.
+   
+    Returns nothing.
+    """
     if not key:
         with open("checkpoint", "w") as checkpoint:
             checkpoint.writelines("")
@@ -702,6 +710,13 @@ def write_checkpoint(key=None):
             checkpoint.writelines(key)
             
 def read_checkpoint():
+    """
+    Reads a checkpoint file from disk. 
+    Checkpoint files are account names separated by newlines.
+    
+    Returns a list with the contents of the checkpoint file.
+    """
+    
     with open("checkpoint", "r") as file:
         checkpoint = file.readlines()
         checkpoint = [x.strip() for x in checkpoint]
@@ -735,20 +750,22 @@ def process_following_user(client, settings, follow_dic, checkpoint=None):
                   search_user().
                   REQUIRED
     
-    checkpoint = a list of accounts already processed in the previous sections.
+    checkpoint = a list of accounts already processed in the previous session.
                 OPTIONAL
                 
     Returns nothing, saves all media attachments to disk and converts them if
     conversion is enabled. Deletes checkpoint file after operations are
     completed.
     """
-    
+    # Initialize Checkpoint file
     if not checkpoint:
         write_checkpoint()
+        # Set internal checkpoint as an empty list
         checkpoint = []
     else:
         pass   
-
+    
+    # Counts how many users have been processed already, for consistency
     skipped_users = len(checkpoint)
     
     total_number = len(follow_dic.keys()) + skipped_users
@@ -869,13 +886,18 @@ def download_following(client, settings, checkpoint=None, override=None):
     Segregated from main() since v0.014. Requires a setting dictionary as
     an argument as of v0.02.
     
-    Takes 2 arguments:
+    Takes 4 arguments:
         
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
              REQUIRED
     settings = dictionary of conversion settings, created by ffmpeg_validate()
                REQUIRED
+    checkpoint = a list of accounts already processed in the previous session.
+                OPTIONAL
+    override = a follow list in dictionary form. Used to override the follow
+                list generated within the function. Used for debugging.
+                OPTIONAL
              
     Returns nothing, saves files to disk, exits program when done.
 
@@ -1393,3 +1415,4 @@ def main():
 if __name__ == "__main__": 
     main()
 #%% DEBUG
+
