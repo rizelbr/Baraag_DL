@@ -329,10 +329,11 @@ def initialize():
             print("Client credentials found. Attempting authentication...")
             print()
             client = init_client(client_credentials)
-            user, password = request_login()
+            user = request_login()
+            code = oauth_exec(client)
             
             try:
-                client = login_loop(client, user, password)
+                client = login_loop(client, user, code)
                 return client
                    
             except Exception as exc:
@@ -1423,4 +1424,3 @@ def main():
 if __name__ == "__main__": 
     main()
 #%% DEBUG
-
