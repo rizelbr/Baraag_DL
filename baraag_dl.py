@@ -112,7 +112,7 @@ def request_login():
     
     return user
 
-def user_login(client, user, password):
+def user_login(client, user, code):
     """
     Logs in the user after initialization if there are no valid credentials.
 
@@ -133,7 +133,7 @@ def user_login(client, user, password):
     Please see initialize() to see how the authentication flow works currently.   
     """
     client.log_in(username = user,
-                    password = password,
+                    code = code,
                     to_file = "user_credentials")
 
 def login_loop(client, user, password):
