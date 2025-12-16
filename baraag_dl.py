@@ -105,16 +105,12 @@ def request_login():
     
     Takes no arguments.
     
-    Returns a pair of strings: user, password
+    Returns a string: user
     
     """
     user = input("Login (e-mail, leave blank to skip login): ")
-    if user:
-        password = getpass("Password (will not be echoed): ")
-    else:
-        password = None
     
-    return user, password
+    return user
 
 def user_login(client, user, password):
     """
