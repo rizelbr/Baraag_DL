@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.023 -  A simple Baraag media downloader
+Baraag DL v0.03 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -29,7 +29,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.023"
+baraag_dl_version = "v0.03"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -693,7 +693,37 @@ def sanitize(string):
 
     return sanitized_string 
 
-def process_following_user(client, settings, follow_dic):
+def write_checkpoint(key=None):
+    """
+    Writes a checkpoint file to disk.
+    If given a key (STR, usually from process_following_user()),
+    appends it to the checkpoint file.
+    If given nothing, writes a blank checkpoint file.
+   
+    Returns nothing.
+    """
+    if not key:
+        with open("checkpoint", "w") as checkpoint:
+            checkpoint.writelines("")
+    else:
+        with open("checkpoint", "a") as checkpoint:
+            checkpoint.writelines(key)
+            
+def read_checkpoint():
+    """
+    Reads a checkpoint file from disk. 
+    Checkpoint files are account names separated by newlines.
+    
+    Returns a list with the contents of the checkpoint file.
+    """
+    
+    with open("checkpoint", "r") as file:
+        checkpoint = file.readlines()
+        checkpoint = [x.strip() for x in checkpoint]
+        
+        return checkpoint
+    
+def process_following_user(client, settings, follow_dic, checkpoint=None):
     """
     Goes over every account followed by an user, collects all posts with 
     media attachments, and downloads them to disk in folders according to
@@ -703,13 +733,14 @@ def process_following_user(client, settings, follow_dic):
     Requires get_timeline(), get_attachment_data() and download_file() to
     operate.
     
-    Takes 3 arguments:
+    Takes 4 arguments:
         
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
              REQUIRED
              
     settings = dictionary of conversion settings, created by ffmpeg_validate()
+                REQUIRED
     
     follow_dic = a dictionary of followed account names and IDs in the format
                  {account_name (str): {'account':(str),'id':(int)}.
@@ -717,20 +748,36 @@ def process_following_user(client, settings, follow_dic):
                   Obtained from the ['following'] key of the dictionary
                   returned by get_owner_info(), or alternatively from
                   search_user().
-
+                  REQUIRED
+    
+    checkpoint = a list of accounts already processed in the previous session.
+                OPTIONAL
+                
     Returns nothing, saves all media attachments to disk and converts them if
-    conversion is enabled.
+    conversion is enabled. Deletes checkpoint file after operations are
+    completed.
     """
-    total_number = len(follow_dic.keys())
+    # Initialize Checkpoint file
+    if not checkpoint:
+        write_checkpoint()
+        # Set internal checkpoint as an empty list
+        checkpoint = []
+    else:
+        pass   
     
-    current_number = 1
+    # Counts how many users have been processed already, for consistency
+    skipped_users = len(checkpoint)
     
+    total_number = len(follow_dic.keys()) + skipped_users
+    
+    current_number = 1 + skipped_users
+        
     for key in follow_dic.keys():
         account = follow_dic[key]
         account_name = account['account']
         account_id = account['id']
         account_folder_name = sanitize(account_name)+"_"+str(account_id)
-              
+        
         print("Processing user "+str(current_number)+"/"+str(total_number)+":")
         print("Account: "+account_name)
         print("ID: "+str(account_id)+"\n")
@@ -762,8 +809,13 @@ def process_following_user(client, settings, follow_dic):
                     pass
         
         current_number +=1
+        #Write finished account to checkpoint
+        write_checkpoint(key + "\n")
         
         print()
+    
+    # Delete checkpoint file when done
+    os.remove("checkpoint")
 
 def search_user(client):
     """
@@ -828,38 +880,59 @@ def search_user(client):
     
     return result_dic
 
-def download_following(client, settings):
+def download_following(client, settings, checkpoint=None, override=None):
     """
     Routine loop that downloads media from all accounts the user follows.
     Segregated from main() since v0.014. Requires a setting dictionary as
     an argument as of v0.02.
     
-    Takes 2 arguments:
+    Takes 4 arguments:
         
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
              REQUIRED
     settings = dictionary of conversion settings, created by ffmpeg_validate()
                REQUIRED
+    checkpoint = a list of accounts already processed in the previous session.
+                OPTIONAL
+    override = a follow list in dictionary form. Used to override the follow
+                list generated within the function. Used for debugging.
+                OPTIONAL
              
     Returns nothing, saves files to disk, exits program when done.
 
     """
+
     # Getting user information
            
     owner_info = get_owner_info(client)
     
     # Get following list
-    
-    follow_list = owner_info['following']
+    if not override:
+        follow_list = owner_info['following']
+    else:
+        follow_list = override
     follow_number = len(follow_list)
     
-    # Process followed accounts and start downloads
-    print()
-    print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
-    print()
-    process_following_user(client, settings, follow_list)
-    print(Fore.GREEN+"All done!"+Fore.RESET)
+    if not checkpoint:
+        # Process followed accounts and start downloads
+        print()
+        print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
+        print()
+        process_following_user(client, settings, follow_list, checkpoint)
+        print(Fore.GREEN+"All done!"+Fore.RESET)
+
+    else:
+        
+        follow_list = {x:follow_list[x] for x in follow_list if x not in \
+                       checkpoint}
+        follow_number = len(follow_list)
+        print()
+        print(Fore.YELLOW+"Resuming from checkpoint ("+str(follow_number)+ \
+              " users remaining)"+Fore.RESET)
+        print()
+        process_following_user(client, settings, follow_list, checkpoint)
+        print(Fore.GREEN+"All done!"+Fore.RESET)
 
 def select_menu(logged_in):
     """
@@ -1286,6 +1359,22 @@ def main():
         # Check if user is logged in
         
         logged_in = validate_login(client)
+        
+        # Read in checkpoint
+        if os.path.isfile("checkpoint"):
+            print()
+            print(Fore.GREEN+"Checkpoint file found!"+Fore.RESET)
+            try:
+                checkpoint = read_checkpoint()
+            except:
+                print()
+                print(Fore.RED+"Error reading checkpoint file!"+Fore.RESET)
+                print()
+                print("Ignoring checkpoint file...")
+                checkpoint = None
+                
+        else:
+            checkpoint = None
                 
         # Main menu
         selection = select_menu(logged_in)
@@ -1294,7 +1383,8 @@ def main():
         
         if selection == 1:
             # Downloading all followed accounts
-            download_following(client, settings)
+            download_following(client, settings, checkpoint)
+           
             
         elif selection == 2:
             # Downloading all media from a specific account
@@ -1325,3 +1415,4 @@ def main():
 if __name__ == "__main__": 
     main()
 #%% DEBUG
+
