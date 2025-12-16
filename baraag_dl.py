@@ -20,8 +20,6 @@ from datetime import datetime
 
 from colorama import Fore, Style, Back, init
 
-from getpass import getpass
-
 # Initializing colorama for Windows
 
 if os.name != "posix":
