@@ -55,6 +55,7 @@ def create_client():
     of the script.
     '''
     Mastodon.create_app(client_name,
+                        scopes = ["read"],
                         api_base_url = 'https://baraag.net',
                         to_file = 'client_credentials')
 
@@ -133,6 +134,7 @@ def user_login(client, user, code):
     Please see initialize() to see how the authentication flow works currently.   
     """
     client.log_in(username = user,
+                  scopes = ["read"],
                     code = code,
                     to_file = "user_credentials")
 
@@ -229,7 +231,7 @@ def mastodon_network_error_handler(exc):
     sys.exit()
 
 def oauth_exec(client):
-    oauth_link = client.auth_request_url()
+    oauth_link = client.auth_request_url(scopes = ["read"])
     
     print("Please go to the following link to authorize Baraag DL:")
     print()
