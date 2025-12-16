@@ -100,19 +100,6 @@ def init_client(client_credentials = "client_credentials", user_credentials = No
 
     return client
 
-def request_login():
-    """
-    A simple function to request login information from the user.
-    
-    Takes no arguments.
-    
-    Returns a string: user
-    
-    """
-    user = input("Login (e-mail, leave blank to skip login): ")
-    
-    return user
-
 def user_login(client, user, code):
     """
     Logs in the user after initialization if there are no valid credentials.
@@ -251,7 +238,7 @@ def oauth_exec(client):
     print(oauth_link)
     print()
     code = input("After authorizing Baraag DL, please paste the code generated"\
-                 " here:")
+                 " here. Leave BLANK to proceed as an unregistered user:")
         
     return code
 
