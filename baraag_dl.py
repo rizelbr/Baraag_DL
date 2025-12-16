@@ -185,7 +185,8 @@ def login_loop(client, user, code):
             print()
             print(Fore.YELLOW+"Please try again. Ctrl + C to exit."+Fore.RESET)
             print()
-            user, password = request_login()
+            user = request_login()
+            code = oauth_exec(client)
             client = login_loop(client, user, code)
             return client
     
