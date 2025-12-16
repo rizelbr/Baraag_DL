@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.03 -  A simple Baraag media downloader
+Baraag DL v0.035 -  A simple Baraag media downloader
 """
 
 import argparse
@@ -723,7 +723,8 @@ def read_checkpoint():
         
         return checkpoint
     
-def process_following_user(client, settings, follow_dic, checkpoint=None):
+def process_following_user(client, settings, follow_dic, checkpoint=None, \
+                           full=False):
     """
     Goes over every account followed by an user, collects all posts with 
     media attachments, and downloads them to disk in folders according to
@@ -733,7 +734,7 @@ def process_following_user(client, settings, follow_dic, checkpoint=None):
     Requires get_timeline(), get_attachment_data() and download_file() to
     operate.
     
-    Takes 4 arguments:
+    Takes 5 arguments:
         
     client = Mastodon client object, generated/initialized by initialize()
              Defaults to client.
@@ -752,6 +753,10 @@ def process_following_user(client, settings, follow_dic, checkpoint=None):
     
     checkpoint = a list of accounts already processed in the previous session.
                 OPTIONAL
+    
+    full =  Boolean mode of operation. indicates whether the function is 
+            being called as part of getting all users or not.
+            OPTIONAL
                 
     Returns nothing, saves all media attachments to disk and converts them if
     conversion is enabled. Deletes checkpoint file after operations are
@@ -814,8 +819,9 @@ def process_following_user(client, settings, follow_dic, checkpoint=None):
         
         print()
     
-    # Delete checkpoint file when done
-    os.remove("checkpoint")
+    # Delete checkpoint file when done IF being called with full mode
+    if full:
+        os.remove("checkpoint")
 
 def search_user(client):
     """
@@ -912,14 +918,17 @@ def download_following(client, settings, checkpoint=None, override=None):
         follow_list = owner_info['following']
     else:
         follow_list = override
-    follow_number = len(follow_list)
+    follow_number = len(follow_list)   
     
+    # Set mode of operation as full (all accounts)
+    full = True
+   
     if not checkpoint:
         # Process followed accounts and start downloads
         print()
         print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
         print()
-        process_following_user(client, settings, follow_list, checkpoint)
+        process_following_user(client, settings, follow_list, checkpoint, full)
         print(Fore.GREEN+"All done!"+Fore.RESET)
 
     else:
@@ -931,7 +940,7 @@ def download_following(client, settings, checkpoint=None, override=None):
         print(Fore.YELLOW+"Resuming from checkpoint ("+str(follow_number)+ \
               " users remaining)"+Fore.RESET)
         print()
-        process_following_user(client, settings, follow_list, checkpoint)
+        process_following_user(client, settings, follow_list, checkpoint, full)
         print(Fore.GREEN+"All done!"+Fore.RESET)
 
 def select_menu(logged_in):
