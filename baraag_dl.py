@@ -1360,19 +1360,24 @@ def main():
         
         logged_in = validate_login(client)
         
-        # Read in checkpoint
-        if os.path.isfile("checkpoint"):
-            print()
-            print(Fore.GREEN+"Checkpoint file found!"+Fore.RESET)
-            try:
-                checkpoint = read_checkpoint()
-            except:
+        # Read in checkpoint IF logged in
+        
+        if logged_in:
+            if os.path.isfile("checkpoint"):
                 print()
-                print(Fore.RED+"Error reading checkpoint file!"+Fore.RESET)
-                print()
-                print("Ignoring checkpoint file...")
+                print(Fore.GREEN+"Checkpoint file found!"+Fore.RESET)
+                try:
+                    checkpoint = read_checkpoint()
+                except:
+                    print()
+                    print(Fore.RED+"Error reading checkpoint file!"+Fore.RESET)
+                    print()
+                    print("Ignoring checkpoint file...")
+                    checkpoint = None
+                    
+            else:
                 checkpoint = None
-                
+        
         else:
             checkpoint = None
                 
