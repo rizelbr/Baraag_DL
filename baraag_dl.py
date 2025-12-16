@@ -161,7 +161,7 @@ def login_loop(client, code):
             return client 
         else:
             print()
-            print(Fore.RED+"Unable to login with details provided!"+Fore.RESET)
+            print(Fore.RED+"Unable to login with code provided!"+Fore.RESET)
             print()
             print(Fore.YELLOW+"Please try again. Ctrl + C to exit."+Fore.RESET)
             print()
@@ -254,7 +254,6 @@ def cold_init():
         print()
         print("Requesting user information...")
         print()
-        user = request_login()
         code = oauth_exec(client)
         
     except MastodonNetworkError as exc:
@@ -263,7 +262,7 @@ def cold_init():
     except MastodonError as exc:
         mastodon_error_handler(exc)     
     
-    client = login_loop(client, user, code)
+    client = login_loop(client, code)
     return client
 
 def initialize():
@@ -322,11 +321,10 @@ def initialize():
             print("Client credentials found. Attempting authentication...")
             print()
             client = init_client(client_credentials)
-            user = request_login()
             code = oauth_exec(client)
             
             try:
-                client = login_loop(client, user, code)
+                client = login_loop(client, code)
                 return client
                    
             except Exception as exc:
