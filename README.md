@@ -6,6 +6,9 @@ Inspired by [PixivUtil](https://github.com/Nandaka/PixivUtil2) and [FantiaDL](ht
 
 Many thanks to the folks at [Mastodon.py](https://github.com/halcy/Mastodon.py) for making this implementation much easier than expected.
 
+## Can I use it to download from Pawoo/Misskey/etc. accounts?
+Yes! Just follow the Pawoo/Misskey/etc. account on Baraag, or search for the user directly using the search function!
+
 # Installation
 
 ## Linux/MacOS
@@ -159,6 +162,7 @@ file_size_limit = 50.0
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
     - Convert all MP4 files it comes across to GIF/APNG (if enabled by the user in the `config.ini` file generated)
+- A checkpoint file will be created as followed accounts are processed. This allows Baraag DL to resume processing from the point where it stopped in the previous execution. The file is deliberately plaintext, and will be automatically deleted after all followed accounts are succesfully processed. 
 - This option is disabled for unregistered users.
     
 ### 2. Search for a specific user
@@ -176,5 +180,5 @@ file_size_limit = 50.0
 
 # To-Do
 - Implement dry run mode (debugging)
-- Implement Pawoo compatibility.
+- ~~Implement Pawoo compatibility.~~
 - Install script for MacOS/Linux (?)
