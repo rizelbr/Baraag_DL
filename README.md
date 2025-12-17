@@ -141,14 +141,15 @@ file_size_limit = 50.0
 - Baraag DL will generate a `config.ini` file with the default recommended values.
 - Baraag DL will register a client with the Mastodon API used by Baraag.
 - This will generate a persistent authentication token, ```client_credentials``` in the same folder baraag_dl.py is run from.
-- You will be prompted for a username (e-mail) and password to log into your Baraag account.
-- Alternatively, leave the login field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
+- You will be given a URL to visit and authenticate Baraag DL with your account credentials (This is now mandatory for Mastodon, but I've deliberately made Baraag DL only request read access).
+- Baraag will give you a code which you must input into Baraag DL for login.
+- Alternatively, leave the code field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
 - Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder Baraag DL is run from.
 
 ### Subsequent runs
 - Settings from the `config.ini` file will be read.
 - If ```client_credentials``` and ```user_credentials``` are still valid, authentication will happen without user input.
-- Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for username and password again.
+- Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for authentication again.
  
 ## Execution
 - You will then be shown a menu and asked how you'd like to proceed:
