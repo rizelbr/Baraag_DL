@@ -708,7 +708,7 @@ def write_checkpoint(key=None):
             checkpoint.writelines("")
     else:
         with open("checkpoint", "a") as checkpoint:
-            checkpoint.writelines(key)
+            checkpoint.writelines(key + "\n")
             
 def read_checkpoint():
     """
@@ -823,7 +823,7 @@ def process_following_user(client, settings, follow_dic, checkpoint=None, \
         current_number +=1
         #Write finished account to checkpoint IF full mode
         if full:
-            write_checkpoint(key + "\n")
+            write_checkpoint(key)
         else:
             pass
         
