@@ -6,6 +6,9 @@ Inspired by [PixivUtil](https://github.com/Nandaka/PixivUtil2) and [FantiaDL](ht
 
 Many thanks to the folks at [Mastodon.py](https://github.com/halcy/Mastodon.py) for making this implementation much easier than expected.
 
+## Can I use it to download from Pawoo/Misskey/etc. accounts?
+Yes! Just follow the Pawoo/Misskey/etc. account on Baraag, or search for the user directly using the search function!
+
 # Installation
 
 ## Linux/MacOS
@@ -141,14 +144,15 @@ file_size_limit = 50.0
 - Baraag DL will generate a `config.ini` file with the default recommended values.
 - Baraag DL will register a client with the Mastodon API used by Baraag.
 - This will generate a persistent authentication token, ```client_credentials``` in the same folder baraag_dl.py is run from.
-- You will be prompted for a username (e-mail) and password to log into your Baraag account.
-- Alternatively, leave the login field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
+- You will be given a URL to visit and authenticate Baraag DL with your account credentials (This is now mandatory for Mastodon, but I've deliberately made Baraag DL only request read access).
+- Baraag will give you a code which you must input into Baraag DL for login.
+- Alternatively, leave the code field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
 - Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder Baraag DL is run from.
 
 ### Subsequent runs
 - Settings from the `config.ini` file will be read.
 - If ```client_credentials``` and ```user_credentials``` are still valid, authentication will happen without user input.
-- Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for username and password again.
+- Should either or both files become invalid or corrupted, Baraag DL will recreate the client and prompt you for authentication again.
  
 ## Execution
 - You will then be shown a menu and asked how you'd like to proceed:
@@ -158,6 +162,7 @@ file_size_limit = 50.0
     - Fetch all posts by accounts you follow that contain attachments
     - Download each attachment sequentially for all followed accounts
     - Convert all MP4 files it comes across to GIF/APNG (if enabled by the user in the `config.ini` file generated)
+- A checkpoint file will be created as followed accounts are processed. This allows Baraag DL to resume processing from the point where it stopped in the previous execution. The file is deliberately plaintext, and will be automatically deleted after all followed accounts are succesfully processed. 
 - This option is disabled for unregistered users.
     
 ### 2. Search for a specific user
@@ -175,5 +180,5 @@ file_size_limit = 50.0
 
 # To-Do
 - Implement dry run mode (debugging)
-- Implement Pawoo compatibility.
+- ~~Implement Pawoo compatibility.~~
 - Install script for MacOS/Linux (?)
