@@ -1390,9 +1390,18 @@ def parse_download_list(client, download_list):
             print(Fore.RED+"Unable to locate account " + account + Fore.RESET)
             print("Skipping...")
             continue
-
-    return {account['acct']: {'account': account['acct'], 'id': account['id']}\
+        
+    if parsed_list:
+        return {account['acct']: {'account': account['acct'], 'id': account['id']}\
             for account in parsed_list}
+    else:
+        print()
+        print(Fore.YELLOW+ "No accounts were able to be parsed from the provided list!" + Fore.RESET)
+        print()
+        print(Fore.YELLOW+ "Please check the Download List and try again." + Fore.RESET)
+        print()
+        print("Exiting")
+        
     
 #%%
 def main():
