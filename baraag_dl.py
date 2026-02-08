@@ -911,7 +911,8 @@ def download_following(client, settings, checkpoint=None, override=None):
                 Defaults to None.
                 OPTIONAL
     override = a follow list in dictionary form. Used to override the follow
-                list generated within the function. Used for debugging.
+                list generated within the function. Used for debugging and
+                passing in a download list.
                 Defaults to None.
                 OPTIONAL
              
@@ -919,12 +920,12 @@ def download_following(client, settings, checkpoint=None, override=None):
 
     """
 
-    # Getting user information
-           
-    owner_info = get_owner_info(client)
     
     # Get following list
+    
     if not override:
+        # Getting user information       
+        owner_info = get_owner_info(client)
         follow_list = owner_info['following']
     else:
         follow_list = override
