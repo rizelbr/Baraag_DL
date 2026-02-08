@@ -971,10 +971,11 @@ def select_menu(logged_in):
     print("\nChoose an option:\n")
     if logged_in:
         print("1. Download media from all followed accounts")
-        print("2. Search for user to download media from")
-        print("3. Exit\n")
+        print("2. Download media from accounts in Download List")
+        print("3. Search for user to download media from")
+        print("4. Exit\n")
         
-        valid_choices = [1,2,3]
+        valid_choices = [1,2,3,4]
         selection = ""
         
         try:
@@ -994,10 +995,11 @@ def select_menu(logged_in):
         return selection
     
     else:
-        print("1. Search for user to download media from")
-        print("2. Exit\n")
+        print("1. Download media from accounts in Download List")
+        print("2. Search for user to download media from")
+        print("3. Exit\n")
         
-        valid_choices = [1,2]
+        valid_choices = [1,2,3]
         selection = ""
         
         try:
