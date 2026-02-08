@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Baraag DL v0.035 -  A simple Baraag media downloader
+Baraag DL v0.040 -  A simple Baraag media downloader
 """
 
 from mastodon import Mastodon
@@ -26,7 +26,7 @@ if os.name != "posix":
 
 # Global variables
 
-baraag_dl_version = "v0.035"
+baraag_dl_version = "v0.040"
 client_name = "baraag_dl"+baraag_dl_version
 
 # Initial empty client
@@ -920,7 +920,6 @@ def download_following(client, settings, checkpoint=None, override=None):
 
     """
 
-    
     # Get following list
     
     if not override:
@@ -934,7 +933,6 @@ def download_following(client, settings, checkpoint=None, override=None):
     # Set mode of operation as full (all accounts)
     full = True
     
-
     if not checkpoint:
         # Process followed accounts and start downloads
         print()
