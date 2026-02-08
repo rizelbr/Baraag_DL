@@ -1,10 +1,13 @@
 # Baraag DL
 
-A simple Baraag media downloader, made to be a simple way of downloading all images/videos in posts made by accounts you follow.
+A simple Baraag media downloader, made to be a simple way of downloading all images/videos in posts made by accounts on Baraag.
 
 Inspired by [PixivUtil](https://github.com/Nandaka/PixivUtil2) and [FantiaDL](https://github.com/bitbybyte/fantiadl).
 
 Many thanks to the folks at [Mastodon.py](https://github.com/halcy/Mastodon.py) for making this implementation much easier than expected.
+
+## Can I use it without a Baraag account?
+Yes! Just proceed without authentication (leave the authentication token empty when prompted) and you can use the search and download list functions to download media directly.
 
 ## Can I use it to download from Pawoo/Misskey/etc. accounts?
 Yes! Just follow the Pawoo/Misskey/etc. account on Baraag, or search for the user directly using the search function!
@@ -142,11 +145,12 @@ file_size_limit = 50.0
 ## Logging in and authentication
 ### First run
 - Baraag DL will generate a `config.ini` file with the default recommended values.
+- Baraag DL will generate an empty `download_list` file that users can use to specify accounts to download from.
 - Baraag DL will register a client with the Mastodon API used by Baraag.
 - This will generate a persistent authentication token, ```client_credentials``` in the same folder baraag_dl.py is run from.
 - You will be given a URL to visit and authenticate Baraag DL with your account credentials (This is now mandatory for Mastodon, but I've deliberately made Baraag DL only request read access).
 - Baraag will give you a code which you must input into Baraag DL for login.
-- Alternatively, leave the code field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search function.
+- Alternatively, leave the code field blank to proceed as an unregistered user. This obviously won't allow for downloading media from followed accounts, but allows you to download from specific accounts by using the search and download list functions.
 - Should the login be successful, Baraag DL will generate a persistent user token, ```user_credentials``` in the same folder Baraag DL is run from.
 
 ### Subsequent runs
@@ -171,6 +175,18 @@ file_size_limit = 50.0
 - You can then choose among the options of the list for the account from which all media will be downloaded.
 - If ffmpeg is present and enabled, all MP4 media will be converted to GIF/APNG, as configured in the `config.ini` file.
 
+### 3. Download from accounts in `download_list`
+- Baraag DL will then proceed as #1 above, but iterating over the accounts on `download_list` instead.
+#### Assembling `download_list`
+- `download_list` needs to contain account ID numbers, each on a different line, i.e.
+```
+11122223333
+1122244322
+47782526
+```
+- They need to be account **ID numbers**, not account names.
+- The account numbers can be obtained from the search funcion, as explained in #2
+- Alternatively (if you are very dedicated), account ID numbers can be inferred from the URL of the Profile image of the account.
 ## Downloading and Filenames
 - Files are saved as ```{Date posted}_{Post ID}_{Attachment_ID}.extension``` in a folder for each account, named in the format ```{Account name}_{Account ID}```. Keep in mind that ```Account name``` is not the same as ```Display name```, so an account's public name and Baraag registration name may differ.
 - Files already downloaded and saved to disk are skipped to save time, bandwidth, and not bombard the API with requests.
