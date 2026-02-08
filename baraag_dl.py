@@ -933,11 +933,15 @@ def download_following(client, settings, checkpoint=None, override=None):
     
     # Set mode of operation as full (all accounts)
     full = True
-   
+    
+
     if not checkpoint:
         # Process followed accounts and start downloads
         print()
-        print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
+        if override:
+            print(Fore.YELLOW+"Processing accounts from download list ("+str(follow_number)+" users)"+Fore.RESET)
+        else:
+            print(Fore.YELLOW+"Processing all followed accounts ("+str(follow_number)+" users)"+Fore.RESET)
         print()
         process_following_user(client, settings, follow_list, checkpoint, full)
         print(Fore.GREEN+"All done!"+Fore.RESET)
