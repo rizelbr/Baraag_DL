@@ -1358,7 +1358,42 @@ def validate_login(client):
         return True
     except MastodonUnauthorizedError:
         return False
+    
+def download_list_init():
+    if not os.path.isfile("download_list"):
+        payload = ""
+        with open("download_list", "w") as ini_file:
+            ini_file.writelines(payload)
+    else:
+        pass
+    
+    
+def read_download_list():
+    
+    with open("download_list", "r") as user_list:
+        download_list = user_list.readlines()
         
+    download_list = [x.strip("\n") for x in download_list if x != "\n"] 
+    
+    return download_list
+
+def parse_download_list(client, download_list):
+    parsed_list = []
+    
+    for account in download_list:
+        try:
+            account_info = client.account(account)
+            parsed_list.append(account_info)
+            
+        except:
+            print()
+            print(Fore.RED+"Unable to locate account " + account + Fore.RESET)
+            print("Skipping...")
+            continue
+
+    return {account['acct']: {'account': account['acct'], 'id': account['id']}\
+            for account in parsed_list}
+    
 #%%
 def main():
     try:
@@ -1373,6 +1408,10 @@ def main():
         # Program settings initialization
         
         settings = ffmpeg_init()
+        
+        # Initializing Download list
+        
+        download_list_init()
 
         # Initialize Ffmpeg
         settings = ffmpeg_validate(settings)
@@ -1422,8 +1461,21 @@ def main():
             # Downloading all followed accounts
             download_following(client, settings, checkpoint)
            
-            
-        elif selection == 2:
+        if selection == 2:
+            # Downloading from media in download list
+            download_list = read_download_list() 
+            if not download_list:
+                print()
+                print(Fore.YELLOW+"Download List is empty!"+Fore.RESET)
+                print()
+                print(Fore.YELLOW+"Exiting..."+Fore.RESET)
+                
+            else:
+                print()
+                print("Parsing accounts from Download List...")
+                download_list = parse_download_list(client, download_list)
+                download_following(client, settings, checkpoint, override=download_list)
+        elif selection == 3:
             # Downloading all media from a specific account
             if logged_in:
                 user_to_download = search_user(client)
