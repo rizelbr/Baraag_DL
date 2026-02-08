@@ -912,7 +912,7 @@ def download_following(client, settings, checkpoint=None, override=None):
                 OPTIONAL
     override = a follow list in dictionary form. Used to override the follow
                 list generated within the function. Used for debugging and
-                passing in a download list.
+                passing in a specific list of accounts to download.
                 Defaults to None.
                 OPTIONAL
              
@@ -1359,9 +1359,8 @@ def validate_login(client):
     
 def download_list_init():
     if not os.path.isfile("download_list"):
-        payload = ""
-        with open("download_list", "w") as ini_file:
-            ini_file.writelines(payload)
+        with open("download_list", "w") as _:
+            pass    
     else:
         pass
     
